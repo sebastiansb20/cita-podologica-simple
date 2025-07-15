@@ -1,12 +1,55 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import { Calendar, Clock, User, Settings } from "lucide-react";
+import { AppointmentBooking } from "@/components/AppointmentBooking";
+import { AdminPanel } from "@/components/AdminPanel";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-green-50">
+      <header className="bg-white shadow-sm border-b border-blue-100">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Calendar className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">
+                  Citas Podológicas
+                </h1>
+                <p className="text-lg text-gray-600">
+                  Agenda tu consulta fácilmente
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => setIsAdminMode(!isAdminMode)}
+              variant={isAdminMode ? "default" : "outline"}
+              size="lg"
+              className="flex items-center space-x-2"
+            >
+              <Settings className="h-5 w-5" />
+              <span>{isAdminMode ? "Modo Paciente" : "Administración"}</span>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        {isAdminMode ? <AdminPanel /> : <AppointmentBooking />}
+      </main>
+
+      <footer className="mt-16 bg-white border-t border-blue-100">
+        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
+          <p className="text-gray-600">
+            Consultas de podología profesional con cita previa
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
