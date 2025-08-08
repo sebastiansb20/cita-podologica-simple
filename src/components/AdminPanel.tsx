@@ -1,12 +1,17 @@
 
 import { useState } from "react";
-import { Calendar, Clock, Users, Trash2, Plus } from "lucide-react";
+import { Calendar, Clock, Users, Trash2, Plus, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 const DAYS_OF_WEEK = [
   "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"
@@ -32,16 +37,10 @@ export const AdminPanel = () => {
     Sábado: false,
   });
 
-  const [workingHours, setWorkingHours] = useState({
-    "09:00": true,
-    "10:00": true,
-    "11:00": true,
-    "12:00": true,
-    "14:00": true,
-    "15:00": true,
-    "16:00": true,
-    "17:00": true,
-  });
+  // Horarios bloqueados por fecha específica: { "2025-01-14": ["12:00", "13:00"] }
+  const [blockedHours, setBlockedHours] = useState<Record<string, string[]>>({});
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const { toast } = useToast();
 
@@ -64,15 +63,46 @@ export const AdminPanel = () => {
     });
   };
 
-  const toggleWorkingHour = (hour: string) => {
-    setWorkingHours(prev => ({
-      ...prev,
-      [hour]: !prev[hour]
-    }));
-    toast({
-      title: "Horario actualizado",
-      description: `Horario ${hour} ${!workingHours[hour] ? "habilitado" : "deshabilitado"}.`,
-    });
+  const toggleBlockedHour = (hour: string) => {
+    if (!selectedDate) {
+      toast({
+        title: "Error",
+        description: "Selecciona una fecha primero.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const dateKey = format(selectedDate, "yyyy-MM-dd");
+    const currentBlocked = blockedHours[dateKey] || [];
+    
+    if (currentBlocked.includes(hour)) {
+      // Remover hora bloqueada
+      setBlockedHours(prev => ({
+        ...prev,
+        [dateKey]: currentBlocked.filter(h => h !== hour)
+      }));
+      toast({
+        title: "Horario habilitado",
+        description: `Horario ${hour} habilitado para ${format(selectedDate, "dd/MM/yyyy")}.`,
+      });
+    } else {
+      // Agregar hora bloqueada
+      setBlockedHours(prev => ({
+        ...prev,
+        [dateKey]: [...currentBlocked, hour]
+      }));
+      toast({
+        title: "Horario bloqueado",
+        description: `Horario ${hour} bloqueado para ${format(selectedDate, "dd/MM/yyyy")}.`,
+      });
+    }
+  };
+
+  const isHourBlocked = (hour: string): boolean => {
+    if (!selectedDate) return false;
+    const dateKey = format(selectedDate, "yyyy-MM-dd");
+    return blockedHours[dateKey]?.includes(hour) || false;
   };
 
   return (
@@ -101,7 +131,7 @@ export const AdminPanel = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {Object.values(workingHours).filter(Boolean).length}
+                  {DEFAULT_HOURS.length}
                 </p>
                 <p className="text-gray-600">Horarios Activos</p>
               </div>
@@ -150,27 +180,70 @@ export const AdminPanel = () => {
         </CardContent>
       </Card>
 
-      {/* Gestión de horarios */}
+      {/* Gestión de horarios por fecha específica */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Clock className="h-5 w-5" />
-            <span>Horarios Disponibles</span>
+            <span>Bloquear Horarios por Fecha</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {DEFAULT_HOURS.map((hour) => (
-              <div key={hour} className="flex items-center justify-between p-4 border rounded-lg">
-                <Label htmlFor={`hour-${hour}`} className="text-lg">{hour}</Label>
-                <Switch
-                  id={`hour-${hour}`}
-                  checked={workingHours[hour]}
-                  onCheckedChange={() => toggleWorkingHour(hour)}
+        <CardContent className="space-y-6">
+          {/* Selector de fecha */}
+          <div className="flex flex-col space-y-2">
+            <Label>Seleccionar fecha:</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "dd/MM/yyyy", { locale: es }) : "Seleccionar fecha"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarPicker
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                  locale={es}
                 />
-              </div>
-            ))}
+              </PopoverContent>
+            </Popover>
           </div>
+
+          {/* Horarios disponibles para la fecha seleccionada */}
+          {selectedDate && (
+            <div>
+              <Label className="text-base font-semibold mb-4 block">
+                Horarios para {format(selectedDate, "dd/MM/yyyy", { locale: es })}:
+              </Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {DEFAULT_HOURS.map((hour) => (
+                  <div key={hour} className="flex items-center justify-between p-4 border rounded-lg">
+                    <Label className="text-lg">{hour}</Label>
+                    <Switch
+                      checked={!isHourBlocked(hour)}
+                      onCheckedChange={() => toggleBlockedHour(hour)}
+                    />
+                  </div>
+                ))}
+              </div>
+              {blockedHours[format(selectedDate, "yyyy-MM-dd")]?.length > 0 && (
+                <div className="mt-4 p-4 bg-red-50 rounded-lg">
+                  <p className="text-sm text-red-700">
+                    <strong>Horarios bloqueados:</strong> {blockedHours[format(selectedDate, "yyyy-MM-dd")].join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
