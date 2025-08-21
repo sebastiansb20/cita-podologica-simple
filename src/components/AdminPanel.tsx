@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { Calendar, Clock, Users, Trash2, Plus, CalendarIcon } from "lucide-react";
+import { Calendar, Clock, Users, Trash2, Plus, CalendarIcon, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
@@ -23,9 +24,9 @@ const DEFAULT_HOURS = [
 
 export const AdminPanel = () => {
   const [appointments, setAppointments] = useState([
-    { id: 1, day: "Lunes", time: "10:00", name: "María García", phone: "555-0123" },
-    { id: 2, day: "Martes", time: "15:00", name: "Juan Pérez", phone: "555-0456" },
-    { id: 3, day: "Miércoles", time: "11:00", name: "Ana López", phone: "555-0789" },
+    { id: 1, day: "Lunes", time: "10:00", name: "María García", phone: "555-0123", service: "Limpieza de uñas" },
+    { id: 2, day: "Martes", time: "15:00", name: "Juan Pérez", phone: "555-0456", service: "Tratamiento de hongos" },
+    { id: 3, day: "Miércoles", time: "11:00", name: "Ana López", phone: "555-0789", service: "Pedicura completa" },
   ]);
 
   const [workingDays, setWorkingDays] = useState({
@@ -41,6 +42,17 @@ export const AdminPanel = () => {
   const [blockedHours, setBlockedHours] = useState<Record<string, string[]>>({});
   
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  
+  // Servicios disponibles
+  const [services, setServices] = useState<string[]>([
+    "Pedicura completa",
+    "Limpieza de uñas",
+    "Tratamiento de hongos",
+    "Corte de uñas",
+    "Tratamiento de callos"
+  ]);
+  
+  const [newService, setNewService] = useState("");
 
   const { toast } = useToast();
 
@@ -103,6 +115,25 @@ export const AdminPanel = () => {
     if (!selectedDate) return false;
     const dateKey = format(selectedDate, "yyyy-MM-dd");
     return blockedHours[dateKey]?.includes(hour) || false;
+  };
+
+  const addService = () => {
+    if (newService.trim() && !services.includes(newService.trim())) {
+      setServices(prev => [...prev, newService.trim()]);
+      setNewService("");
+      toast({
+        title: "Servicio agregado",
+        description: `El servicio "${newService.trim()}" ha sido agregado.`,
+      });
+    }
+  };
+
+  const removeService = (serviceToRemove: string) => {
+    setServices(prev => prev.filter(service => service !== serviceToRemove));
+    toast({
+      title: "Servicio eliminado",
+      description: `El servicio "${serviceToRemove}" ha sido eliminado.`,
+    });
   };
 
   return (
@@ -175,6 +206,46 @@ export const AdminPanel = () => {
                   onCheckedChange={() => toggleWorkingDay(day)}
                 />
               </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Gestión de servicios */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Tag className="h-5 w-5" />
+            <span>Servicios a Ofrecer</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex space-x-2">
+            <Input
+              value={newService}
+              onChange={(e) => setNewService(e.target.value)}
+              placeholder="Nuevo servicio..."
+              onKeyPress={(e) => e.key === 'Enter' && addService()}
+              className="flex-1"
+            />
+            <Button onClick={addService} disabled={!newService.trim()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {services.map((service) => (
+              <Badge key={service} variant="secondary" className="text-sm py-2 px-3">
+                {service}
+                <Button
+                  onClick={() => removeService(service)}
+                  variant="ghost"
+                  size="sm"
+                  className="ml-2 h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </Badge>
             ))}
           </div>
         </CardContent>
@@ -274,6 +345,7 @@ export const AdminPanel = () => {
                     <div>
                       <p className="font-semibold">{appointment.name}</p>
                       <p className="text-gray-600">{appointment.phone}</p>
+                      <p className="text-sm text-blue-600">{appointment.service}</p>
                     </div>
                   </div>
                   <Button
