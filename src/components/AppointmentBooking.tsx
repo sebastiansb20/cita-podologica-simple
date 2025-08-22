@@ -23,11 +23,11 @@ const DEFAULT_HOURS = [
 
 // Servicios disponibles (en una app real vendría del backend)
 const AVAILABLE_SERVICES = [
-  "Pedicura completa",
-  "Limpieza de uñas", 
-  "Tratamiento de hongos",
-  "Corte de uñas",
-  "Tratamiento de callos"
+  "Corte común",
+  "Corte y cejas", 
+  "Corte, cejas y barba",
+  "Tinte",
+  "Otro"
 ];
 
 export const AppointmentBooking = () => {

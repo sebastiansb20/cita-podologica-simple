@@ -19,10 +19,10 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-800">
-                  Citas Podológicas
+                  Barber Shop
                 </h1>
                 <p className="text-lg text-gray-600">
-                  Agenda tu consulta fácilmente
+                  Agenda tu cita fácilmente
                 </p>
               </div>
             </div>
@@ -33,7 +33,7 @@ const Index = () => {
               className="flex items-center space-x-2"
             >
               <Settings className="h-5 w-5" />
-              <span>{isAdminMode ? "Modo Paciente" : "Administración"}</span>
+              <span>{isAdminMode ? "Modo Cliente" : "Administración"}</span>
             </Button>
           </div>
         </div>
@@ -46,7 +46,7 @@ const Index = () => {
       <footer className="mt-16 bg-white border-t border-blue-100">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
           <p className="text-gray-600">
-            Consultas de podología profesional con cita previa
+            Agenda de citas a tu barbería facilmente
           </p>
         </div>
       </footer>

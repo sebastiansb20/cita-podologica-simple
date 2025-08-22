@@ -24,9 +24,9 @@ const DEFAULT_HOURS = [
 
 export const AdminPanel = () => {
   const [appointments, setAppointments] = useState([
-    { id: 1, day: "Lunes", time: "10:00", name: "María García", phone: "555-0123", service: "Limpieza de uñas" },
-    { id: 2, day: "Martes", time: "15:00", name: "Juan Pérez", phone: "555-0456", service: "Tratamiento de hongos" },
-    { id: 3, day: "Miércoles", time: "11:00", name: "Ana López", phone: "555-0789", service: "Pedicura completa" },
+    { id: 1, day: "Lunes", date:"18", time: "10:00", name: "Matias García", phone: "555-0123", service: "Corte común" },
+    { id: 2, day: "Martes", date:"19", time: "15:00", name: "Juan Pérez", phone: "555-0456", service: "Corte, cejas y barba" },
+    { id: 3, day: "Miércoles", date:"20", time: "11:00", name: "Joaquín López", phone: "555-0789", service: "Tinte" },
   ]);
 
   const [workingDays, setWorkingDays] = useState({
@@ -45,11 +45,11 @@ export const AdminPanel = () => {
   
   // Servicios disponibles
   const [services, setServices] = useState<string[]>([
-    "Pedicura completa",
-    "Limpieza de uñas",
-    "Tratamiento de hongos",
-    "Corte de uñas",
-    "Tratamiento de callos"
+    "Corte común",
+    "Corte y cejas",
+    "Corte, cejas y barba",
+    "Tinte",
+    "Otro"
   ]);
   
   const [newService, setNewService] = useState("");
@@ -261,7 +261,7 @@ export const AdminPanel = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Selector de fecha */}
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-row items-center gap-2 space-y-2">
             <Label>Seleccionar fecha:</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -337,7 +337,7 @@ export const AdminPanel = () => {
                 <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
                   <div className="flex items-center space-x-4">
                     <Badge variant="outline" className="text-sm">
-                      {appointment.day}
+                      {appointment.day} {appointment.date}
                     </Badge>
                     <Badge variant="outline" className="text-sm">
                       {appointment.time}
