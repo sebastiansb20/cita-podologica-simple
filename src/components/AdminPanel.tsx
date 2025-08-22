@@ -335,13 +335,16 @@ export const AdminPanel = () => {
             <div className="space-y-4">
               {appointments.map((appointment) => (
                 <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
-                  <div className="flex items-center space-x-4">
-                    <Badge variant="outline" className="text-sm">
-                      {appointment.day} {appointment.date}
-                    </Badge>
-                    <Badge variant="outline" className="text-sm">
-                      {appointment.time}
-                    </Badge>
+                  <div className="flex flex-col items-center space-x-4">
+                    <div className="py-2">
+                      <Badge variant="outline" className="text-sm">
+                        {appointment.day} {appointment.date}
+                      </Badge>
+                      <Badge variant="outline" className="text-sm">
+                        {appointment.time}
+                      </Badge>
+                    </div>
+                    
                     <div>
                       <p className="font-semibold">{appointment.name}</p>
                       <p className="text-gray-600">{appointment.phone}</p>

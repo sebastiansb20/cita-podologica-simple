@@ -247,7 +247,7 @@ export const AppointmentBooking = () => {
       </CardHeader>
       <CardContent className="space-y-8">
         {/* Alternar entre navegación por días y calendario */}
-        <div className="flex justify-center space-x-4">
+        <div className="flex flex-col justify-center space-x-4">
           <Button
             onClick={() => setUseCalendar(false)}
             variant={!useCalendar ? "default" : "outline"}
